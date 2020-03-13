@@ -1,0 +1,8 @@
+{
+  "appId": "test.places.io",
+  "appName": "places",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "build",
+  "cordova": {}
+}
