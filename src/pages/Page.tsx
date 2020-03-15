@@ -3,11 +3,11 @@ import { Geolocation, Geoposition } from '@ionic-native/geolocation'
 import React from 'react';
 import { RouteComponentProps } from 'react-router';
 import socketIOClient from 'socket.io-client';
-import ExploreContainer from '../components/ExploreContainer';
+import { compute_route, precompute_geoposition, ComputedPosition } from "../utils/locationUtils";
 import './Page.css';
 
 interface PageState {
-  response: any;
+  result: number;
   endpoint: string;
 } 
 
@@ -20,22 +20,13 @@ class Page extends React.Component<RouteComponentProps<{ name: string; }>, PageS
     super(props);
 
     this.state = {
-      response: false,
-      endpoint: "http://rtmessages-git-places.apps.us-west-1.starter.openshift-online.com"
+      result: 5,
+      endpoint: "https://places-updates.herokuapp.com"
     };
   }
 
   geopos_to_json(pos: Geoposition) {
-    return {
-      coords: {
-        lat: pos.coords.latitude,
-        long: pos.coords.longitude,
-        alt: pos.coords.altitude,
-        speed: pos.coords.speed,
-        heading: pos.coords.heading,
-      },
-      timestamp: pos.timestamp,
-    }
+    return precompute_geoposition(pos);
   }
 
   ionViewDidEnter() {
@@ -47,7 +38,12 @@ class Page extends React.Component<RouteComponentProps<{ name: string; }>, PageS
     });
     const { endpoint } = this.state;
     this._socket = socketIOClient(endpoint);
-    this._socket.on("update locations", (data: any) => this.setState({ response: data }));
+    this._socket.on("update locations", (data: Object) => {
+      const values = Object.values(data);
+      this.setState({
+        result: compute_route(values[0], values[1])
+      });
+    });
   }
 
   ionViewDidLeave() {
@@ -74,8 +70,7 @@ class Page extends React.Component<RouteComponentProps<{ name: string; }>, PageS
             </IonToolbar>
           </IonHeader>
             <div>
-              My cool container
-              <p>{ JSON.stringify(this.state.response, null, 2) }</p>
+              <p>{ JSON.stringify(this.state.result, null, 2) }</p>
             </div>
         </IonContent>
       </IonPage>
