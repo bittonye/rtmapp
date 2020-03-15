@@ -8,6 +8,7 @@ import './Page.css';
 
 interface PageState {
   result: number;
+  response: string,
   endpoint: string;
 } 
 
@@ -21,6 +22,7 @@ class Page extends React.Component<RouteComponentProps<{ name: string; }>, PageS
 
     this.state = {
       result: 5,
+      response: 'No response',
       endpoint: "https://places-updates.herokuapp.com"
     };
   }
@@ -41,6 +43,7 @@ class Page extends React.Component<RouteComponentProps<{ name: string; }>, PageS
     this._socket.on("update locations", (data: Object) => {
       const values = Object.values(data);
       this.setState({
+        response: JSON.stringify(data, null, 2),
         result: compute_route(values[0], values[1])
       });
     });
@@ -71,6 +74,13 @@ class Page extends React.Component<RouteComponentProps<{ name: string; }>, PageS
           </IonHeader>
             <div>
               <p>{ JSON.stringify(this.state.result, null, 2) }</p>
+
+              <h2>
+                Result from server
+              </h2>
+              <p>
+                { this.state.response }
+              </p>
             </div>
         </IonContent>
       </IonPage>
