@@ -6,8 +6,12 @@ import socketIOClient from 'socket.io-client';
 import { compute_route, precompute_geoposition, ComputedPosition } from "../utils/locationUtils";
 import './Page.css';
 
+interface ComputeResult {
+  score: number,
+  distance: number,
+}
 interface PageState {
-  result: number;
+  result: ComputeResult;
   response: string,
   endpoint: string;
 } 
@@ -21,7 +25,10 @@ class Page extends React.Component<RouteComponentProps<{ name: string; }>, PageS
     super(props);
 
     this.state = {
-      result: 5,
+      result: {
+        score: 5,
+        distance: 0,
+      },
       response: 'No response',
       endpoint: "https://places-updates.herokuapp.com"
     };
