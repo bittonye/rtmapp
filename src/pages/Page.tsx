@@ -6,12 +6,8 @@ import socketIOClient from 'socket.io-client';
 import { compute_route, precompute_geoposition, ComputedPosition } from "../utils/locationUtils";
 import './Page.css';
 
-interface ComputeResult {
-  score: number,
-  distance: number,
-}
 interface PageState {
-  result: ComputeResult;
+  result: any;
   response: string,
   endpoint: string;
 } 
