@@ -1,4 +1,5 @@
 import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, withIonLifeCycle } from '@ionic/react';
+import { IonList, IonItem, IonLabel, IonInput, IonToggle, IonRadio, IonCheckbox, IonItemSliding, IonItemOption, IonItemOptions } from '@ionic/react';
 import { Geolocation, Geoposition } from '@ionic-native/geolocation';
 import { UniqueDeviceID } from "@ionic-native/unique-device-id";
 import React from 'react';
@@ -17,6 +18,7 @@ class Page extends React.Component<RouteComponentProps<{ name: string; }>, PageS
   
   private _watch: any;
   private _socket: any;
+  private _imei: any;
 
   constructor(props: any) {
     super(props);
@@ -35,12 +37,30 @@ class Page extends React.Component<RouteComponentProps<{ name: string; }>, PageS
     return precompute_geoposition(pos);
   }
 
+  compute_all_routes(positions: any) {
+    const my_pos = positions[this._imei];
+    delete positions[this._imei];
+    let res = [];
+    for (const key in positions) {
+      if (positions.hasOwnProperty(key)) {
+        const pos = positions[key];
+        res.push({
+          user_id: key,
+          ...compute_route(my_pos, pos),
+        });
+      }
+    }
+    return res;
+  }
+
   ionViewDidEnter() {
     console.log('ionViewDidEnter event fired');
 
     /* Get device id */
     UniqueDeviceID.get().then((uuid: any) => {
+      console.log("Got imei: " + uuid);
       this._socket.emit("update id", uuid);
+      this._imei = uuid;
     });
 
     /* Init location data */
@@ -52,10 +72,9 @@ class Page extends React.Component<RouteComponentProps<{ name: string; }>, PageS
     const { endpoint } = this.state;
     this._socket = socketIOClient(endpoint);
     this._socket.on("update locations", (data: Object) => {
-      const values = Object.values(data);
       this.setState({
         response: JSON.stringify(data, null, 2),
-        result: compute_route(values[0], values[1])
+        result: this.compute_all_routes(data)
       });
     });
   }
