@@ -1,5 +1,6 @@
 import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, withIonLifeCycle } from '@ionic/react';
-import { Geolocation, Geoposition } from '@ionic-native/geolocation'
+import { Geolocation, Geoposition } from '@ionic-native/geolocation';
+import { UniqueDeviceID } from "@ionic-native/unique-device-id";
 import React from 'react';
 import { RouteComponentProps } from 'react-router';
 import socketIOClient from 'socket.io-client';
@@ -36,6 +37,13 @@ class Page extends React.Component<RouteComponentProps<{ name: string; }>, PageS
 
   ionViewDidEnter() {
     console.log('ionViewDidEnter event fired');
+
+    /* Get device id */
+    UniqueDeviceID.get().then((uuid: any) => {
+      this._socket.emit("update id", uuid);
+    });
+
+    /* Init location data */
     this._watch = Geolocation.watchPosition();
     this._watch.subscribe((data: Geoposition) => {
       console.log(data);
