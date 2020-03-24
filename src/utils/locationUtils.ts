@@ -1,9 +1,6 @@
 import { Geoposition } from "@ionic-native/geolocation";
 
 const pi_compute = (Math.PI/180);
-const K=pi_compute*60*1853;
-const KK=1000/3600;
-const ITERATIONS = 50;
 
 function degrees_to_radians(degrees: number)
 {
@@ -24,8 +21,9 @@ export function precompute_geoposition(pos: Geoposition)
     const pos_lat_rad = degrees_to_radians(pos.coords.latitude);
     const pos_long_rad = degrees_to_radians(pos.coords.longitude);
 
-    const y = pos_lat_rad * K;
-    const x = pos_long_rad * Math.cos(pos_lat_rad) * K;
+    const KDeg2Mtr=60*1853;
+    const y = pos.coords.latitude * KDeg2Mtr;
+    const x = pos.coords.longitude * Math.cos(pos_lat_rad) * KDeg2Mtr;
 
     return {
         x,
@@ -63,13 +61,14 @@ export function compute_route(pos1: ComputedPosition, pos2: ComputedPosition) {
 
         let tdistance = 50;
         let distance = 50;
-        let i = 0
+        let i = 0;
+        const ITERATIONS = 50;
         for (; i < ITERATIONS; i++) {
             distance = compute_distance(
-                pos1.x += pos1_deltas.dx,
-                pos2.x += pos2_deltas.dx,
-                pos1.y += pos1_deltas.dy,
-                pos2.y += pos2_deltas.dy,
+                pos1.x + pos1_deltas.dx*i,
+                pos2.x + pos2_deltas.dx*i,
+                pos1.y + pos1_deltas.dy*i,
+                pos2.y + pos2_deltas.dy*i,
             );
             if (i==0) 
                 tdistance=distance;
