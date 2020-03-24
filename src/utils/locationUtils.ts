@@ -35,12 +35,19 @@ export function precompute_geoposition(pos: Geoposition)
 }
 
 function deltaFunctions(speed: number, heading:number) {
-    const speed_cos = speed * Math.cos(heading);
-    const speed_sin = speed * Math.sin(heading);
+    try {
+        const speed_cos = speed * Math.cos(heading);
+        const speed_sin = speed * Math.sin(heading);
 
-    return {
-        dx: speed_sin,
-        dy: speed_cos,
+        return {
+            dx: speed_sin,
+            dy: speed_cos,
+        }   
+    } catch (ex) {
+        return {
+            dx: 0,
+            dy: 0,
+        }
     }
 }
 
@@ -55,36 +62,30 @@ function compute_distance(x1: number, x2: number, y1: number, y2:number) {
  */
 export function compute_route(pos1: ComputedPosition, pos2: ComputedPosition) {
 
-    try {
-        const pos1_deltas = deltaFunctions(pos1.speed, pos1.heading);
-        const pos2_deltas = deltaFunctions(pos2.speed, pos2.heading);
+    const pos1_deltas = deltaFunctions(pos1.speed, pos1.heading);
+    const pos2_deltas = deltaFunctions(pos2.speed, pos2.heading);
 
-        let tdistance = 50;
-        let distance = 50;
-        let i = 0;
-        const ITERATIONS = 50;
-        for (; i < ITERATIONS; i++) {
-            distance = compute_distance(
-                pos1.x + pos1_deltas.dx*i,
-                pos2.x + pos2_deltas.dx*i,
-                pos1.y + pos1_deltas.dy*i,
-                pos2.y + pos2_deltas.dy*i,
-            );
-            if (i==0) 
-                tdistance=distance;
+    let tdistance = 50;
+    let distance = 50;
+    let i = 0;
+    const ITERATIONS = 50;
+    for (; i < ITERATIONS; i++) {
+        distance = compute_distance(
+            pos1.x + pos1_deltas.dx*i,
+            pos2.x + pos2_deltas.dx*i,
+            pos1.y + pos1_deltas.dy*i,
+            pos2.y + pos2_deltas.dy*i,
+        );
+        if (i==0) 
+            tdistance=distance;
 
-            if (distance < 25) {
-                break;
-            }
+        if (distance < 25) {
+            break;
         }
-        return {
-            score: i/10,
-            distance: tdistance,
-        };
-    } catch(ex) {
-        return {
-            score: 5,
-            distance: 100,
-        };
     }
+    return {
+        score: i/10,
+        distance: tdistance,
+    };
 }
+
