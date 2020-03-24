@@ -24,10 +24,10 @@ class Page extends React.Component<RouteComponentProps<{ name: string; }>, PageS
     super(props);
 
     this.state = {
-      result: {
+      result: [{
         score: 5,
         distance: 0,
-      },
+      }],
       response: 'No response',
       endpoint: "https://places-updates.herokuapp.com"
     };
@@ -89,6 +89,17 @@ class Page extends React.Component<RouteComponentProps<{ name: string; }>, PageS
   }
 
   render() {
+    let list_items = this.state.result.map((pos: any) => {
+      return (
+        <IonItem key={pos.user_id}>
+          <IonLabel>
+            <h3>id: {pos.user_id}</h3>
+            <h3>distance: {pos.distance}</h3>
+            <h3>score: {pos.score}</h3>
+          </IonLabel>
+        </IonItem>
+      )
+    });
     return  (
       <IonPage>
         <IonHeader>
@@ -101,21 +112,9 @@ class Page extends React.Component<RouteComponentProps<{ name: string; }>, PageS
         </IonHeader>
   
         <IonContent>
-          <IonHeader collapse="condense">
-            <IonToolbar>
-              <IonTitle size="large">Locations</IonTitle>
-            </IonToolbar>
-          </IonHeader>
-            <div>
-              <p>{ JSON.stringify(this.state.result, null, 2) }</p>
-
-              <h2>
-                Result from server
-              </h2>
-              <p>
-                { this.state.response }
-              </p>
-            </div>
+        <IonList>
+          {list_items}   
+        </IonList>
         </IonContent>
       </IonPage>
     );
