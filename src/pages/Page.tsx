@@ -39,6 +39,10 @@ class Page extends React.Component<RouteComponentProps<{ name: string; }>, PageS
 
   compute_all_routes(positions: any) {
     const my_pos = positions[this._imei];
+    if (!my_pos) {
+      return [];
+    }
+
     delete positions[this._imei];
     let res = [];
     for (const key in positions) {
@@ -55,7 +59,7 @@ class Page extends React.Component<RouteComponentProps<{ name: string; }>, PageS
 
   ionViewDidEnter() {
     console.log('ionViewDidEnter event fired');
-
+    this._imei = 0;
     /* Get device id */
     UniqueDeviceID.get().then((uuid: any) => {
       console.log("Got imei: " + uuid);
